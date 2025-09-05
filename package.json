@@ -1,0 +1,26 @@
+{
+  "name": "todo-api-express",
+  "version": "1.0.0",
+  "description": "A simple todo API",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "test": "npm run test",
+    "start": "node --watch app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "pedrojcaceresl"
+  },
+  "keywords": [
+    "api",
+    "todo",
+    "app",
+    "backend"
+  ],
+  "author": "Ped&Rom",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

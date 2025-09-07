@@ -1,4 +1,4 @@
-export const todos = [
+export default [
     {
         titulo: "Titulo1",
         descripcion: "Description1",

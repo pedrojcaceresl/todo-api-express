@@ -4,7 +4,7 @@ import todos from "./src/db/todos.js"
 const app = express();
 const PORT = 3000;
 
-app.use(express.json())
+app.use(express.json()) //middleware Eso le dice a Express: “cuando venga un body en formato JSON, parsealo y guardalo en req.body”.
 
 app.get("/", (req, res) => {
     res.send("<h2>Servidor corriendo en el puerto 3000 🥰<h2/>")
@@ -20,7 +20,6 @@ app.get("/api/todos", (req, res) => {
 
 app.get("/api/todos/:id", (req, res) => {
     const id = req.params.id; //recibimos el id por parametros
-    // const body = req.body
     let todoList = {};//declaramos una variable vacia
     todoList = todos.find((value) => value.id == id) //buscamos en el array de objetos el id que recibimos por parametros
     if (!todoList) {//si no existe el id
@@ -34,5 +33,23 @@ app.get("/api/todos/:id", (req, res) => {
     }
 })
 
+//post: para crear
+app.post("/api/todos", (req, res) => {
+    const body = req.body; // guardar en la variable body todo el contenido del cuerpo (body) de la petición HTTP que llega al servidor.
+    const nuevaTarea =  {
+        id: todos.length + 1,
+        titulo: body.titulo,
+        descripcion: body.descripcion,
+        fechaVencimiento: body.fechaVencimiento,
+        prioridad: body.prioridad
+    }
+    todos.push(nuevaTarea); //esto es para guardar la nueva tarea
+    res.json({
+        ok: true,
+        message: "Tarea agregada",
+        data: nuevaTarea 
+    });
+
+})
 
 app.listen(PORT, () => console.log("Ejecutandose en el puerto " + PORT))

@@ -16,22 +16,22 @@ app.get("/api/todos", (req, res) => {
         ok: true,
         data: todos
     })
-} )
+})
 
-app.get("/api/todos/:id",(req, res) => {
+app.get("/api/todos/:id", (req, res) => {
     const id = req.params.id; //recibimos el id por parametros
-   // const body = req.body
-   let todoList  = {};//declaramos una variable vacia
-   todoList = todos.find((value) => value.id == id ) //buscamos en el array de objetos el id que recibimos por parametros
-   if(!todoList){//si no existe el id
-    res.send("no existe")
-   }else{//si existe el id
-    res.json({
-        ok: true,
-        message: "encontrado",
-        data: todoList //el objeto que coincide con el id
-    });
-   }
+    // const body = req.body
+    let todoList = {};//declaramos una variable vacia
+    todoList = todos.find((value) => value.id == id) //buscamos en el array de objetos el id que recibimos por parametros
+    if (!todoList) {//si no existe el id
+        return res.send("no existe") // dice que si no le ponemos el return el código sigue ejecutándose
+    } else {//si existe el id
+        res.json({
+            ok: true,
+            message: "encontrado",
+            data: todoList //el objeto que coincide con el id
+        });
+    }
 })
 
 

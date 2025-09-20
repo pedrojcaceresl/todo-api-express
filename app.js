@@ -36,7 +36,7 @@ app.get("/api/todos/:id", (req, res) => {
 //post: para crear
 app.post("/api/todos", (req, res) => {
     const body = req.body; // guardar en la variable body todo el contenido del cuerpo (body) de la petición HTTP que llega al servidor.
-    const nuevaTarea =  {
+    const nuevaTarea = {
         id: todos.length + 1,
         titulo: body.titulo,
         descripcion: body.descripcion,
@@ -47,8 +47,26 @@ app.post("/api/todos", (req, res) => {
     res.json({
         ok: true,
         message: "Tarea agregada",
-        data: nuevaTarea 
+        data: nuevaTarea
     });
+
+})
+
+
+app.put("/api/todos/:id", (req, res) => {
+    const id = req.params.id; //obtenemmos el id del parametro
+    const tareaNueva = req.body;//los campos que mande el usuario
+    //buscamos la tarea
+    const tarea = todos.find((value) => value.id == id);
+
+    if (!tarea) {
+        return res.send("no existe el id");
+    } else {
+        Object.keys(tareaNueva).forEach((key) => {
+            tarea[key] = tareaNueva[key];
+        });
+        res.json(tarea);//imprimimos la tarea editada ya 
+    }
 
 })
 

@@ -70,4 +70,21 @@ app.put("/api/todos/:id", (req, res) => {
 
 })
 
+app.delete("/api/todos/:id", (req, res) => {
+    const id = parseInt(req.params.id);//obtenemos valor del parametro y parseamos a entero
+    let tareaEliminada = {}; //declaramos variable vacia
+    const tareaIndice = todos.findIndex((value) => value.id === id);//enoctramos indice de la tarea
+    if (tareaIndice === -1) {
+       return res.send("No existe la tarea con id: " + id )//le ponemos return para que no siga ejecutandose el codigo
+    } else {
+        tareaEliminada = todos.splice(tareaIndice, 1);//eliminamos la tarea ( indice, cantidad de elementos a eliminar desde ese indice)
+    }
+    res.json({
+        ok: true,
+        message: "Tarea eliminada",
+        data: tareaEliminada
+    })
+})
+
+
 app.listen(PORT, () => console.log("Ejecutandose en el puerto " + PORT))

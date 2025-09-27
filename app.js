@@ -30,21 +30,33 @@ app.get("/api/todos", async (req, res) => {
     }
 
 })
-
-app.get("/api/todos/:id", (req, res) => {
+//funcion de listar por id
+app.get("/api/todos/:id", async (req, res) => {
     const id = req.params.id; //recibimos el id por parametros
-    let todoList = {};//declaramos una variable vacia
-    todoList = todos.find((value) => value.id == id) //buscamos en el array de objetos el id que recibimos por parametros
-    if (!todoList) {//si no existe el id
-        return res.send("no existe") // dice que si no le ponemos el return el código sigue ejecutándose
-    } else {//si existe el id
+    try {
+        const tareas = await db.oneOrNone(" SELECT * FROM tareas WHERE id=$1", [id]);//consultamos a la bd la tarea que coincida con el id que recibimos por parametros
+        if (!tareas) {//si no existe la tarea
+            return res.json({ //le ponemos return para que no siga ejecutandose el codigo
+                ok: false,
+                message: "Tarea no encontrada"
+            });
+        }
         res.json({
             ok: true,
-            message: "encontrado",
-            data: todoList //el objeto que coincide con el id
+            message: "Tarea encontrada",
+            data: tareas //el objeto que coincide con el id
+        });
+    } catch (err) {
+        console.error(err);//imprimimos el error en la consola
+        res.status(500).json({
+            ok: false,
+            message: "Error al obtener la tarea"
         });
     }
+
 })
+
+
 
 //post: para crear
 app.post("/api/todos", (req, res) => {

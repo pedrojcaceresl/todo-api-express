@@ -1,8 +1,10 @@
 import express from "express";
 import todos from "./src/db/todos.js"
+import db from "./src/db/db.js"
 
 const app = express();
 const PORT = 3000;
+
 
 app.use(express.json()) //middleware Eso le dice a Express: “cuando venga un body en formato JSON, parsealo y guardalo en req.body”.
 
@@ -10,12 +12,23 @@ app.get("/", (req, res) => {
     res.send("<h2>Servidor corriendo en el puerto 3000 🥰<h2/>")
 })
 
+//funcion listar tareas con base de datos
+app.get("/api/todos", async (req, res) => {
 
-app.get("/api/todos", (req, res) => {
-    res.json({
-        ok: true,
-        data: todos
-    })
+    try {//any puede ser 0 o muchos
+        const tareas = await db.any("SELECT * FROM tareas");
+        res.json({
+            ok: true,
+            data: tareas
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            ok: false,
+            message: "Error al obtener las tareas"
+        });
+    }
+
 })
 
 app.get("/api/todos/:id", (req, res) => {
@@ -75,7 +88,7 @@ app.delete("/api/todos/:id", (req, res) => {
     let tareaEliminada = {}; //declaramos variable vacia
     const tareaIndice = todos.findIndex((value) => value.id === id);//enoctramos indice de la tarea
     if (tareaIndice === -1) {
-       return res.send("No existe la tarea con id: " + id )//le ponemos return para que no siga ejecutandose el codigo
+        return res.send("No existe la tarea con id: " + id)//le ponemos return para que no siga ejecutandose el codigo
     } else {
         tareaEliminada = todos.splice(tareaIndice, 1);//eliminamos la tarea ( indice, cantidad de elementos a eliminar desde ese indice)
     }

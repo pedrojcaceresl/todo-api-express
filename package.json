@@ -21,6 +21,7 @@
   "author": "Ped&Rom",
   "license": "MIT",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "pg-promise": "^12.1.3"
   }
 }

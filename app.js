@@ -59,23 +59,29 @@ app.get("/api/todos/:id", async (req, res) => {
 
 
 
-//post: para crear
- app.post("/api/todos", (req, res) => {
-    const body = req.body; // guardar en la variable body todo el contenido del cuerpo (body) de la petición HTTP que llega al servidor.
-    const nuevaTarea = {
-        id: todos.length + 1,
-        titulo: body.titulo,
-        descripcion: body.descripcion,
-        fechaVencimiento: body.fechaVencimiento,
-        prioridad: body.prioridad
-    }
-    todos.push(nuevaTarea); //esto es para guardar la nueva tarea
-    res.json({
-        ok: true,
-        message: "Tarea agregada",
-        data: nuevaTarea
-    });
+//post para crear
+app.post("/api/todos", async (req, res) => {
+    const { titulo, descripcion, fechavencimiento, prioridad } = req.body;//aplicamos lo que seria la desestructuracion para obtener los campos del body y guardarlos en variables
+    try {
+        const nuevaTarea = await db.one
+            (`INSERT INTO public.tareas(titulo, descripcion, fechavencimiento, prioridad) 
+        VALUES ($1, $2, $3, $4) 
+        RETURNING *`,
+                [titulo, descripcion, fechavencimiento, prioridad]);
 
+        res.status(202).json({
+            ok: true,
+            message: "Tarea creada con exito",
+            data: nuevaTarea
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            message: "Error al crear la tarea"
+        })
+    }
 })
 
 

@@ -86,20 +86,28 @@ app.post("/api/todos", async (req, res) => {
 })
 
 app.put("/api/todos/:id", async (req, res) => {
-    const id = req.params.id;//obtenemos el valor del id del parametro
+    const id = parseInt(req.params.id);//obtenemos el valor del id del parametro
     const { titulo, descripcion, fechavencimiento, prioridad } = req.body;//desestructuracion para obtener el dato que envia el cliente
+    // Validación básica del id - > Number.isNaN() significa "is Not a Number" es decir, verifica si el valor no es un número
+    if (Number.isNaN(id)) {
+        return res.status(400).json({
+            ok: false,
+            message: "ID inválido"
+        })
+    }
+
     try {
         const tareaActualizada = await db.oneOrNone(`UPDATE tareas
 	SET titulo=$1, descripcion=$2, fechavencimiento=$3, prioridad=$4
 	WHERE id= $5 RETURNING *`, [titulo, descripcion, fechavencimiento, prioridad, id])
-    console.log(tareaActualizada);
+        console.log(tareaActualizada);
         if (!tareaActualizada) {
-            res.status(404).json({
+            return res.status(404).json({ //siempre en un if colocar return para que no siga ejecutandose el codigo
                 ok: false,
                 message: `Error no existe la tarea con id: ${id}`
             })
         }
-        res.status(201).json({
+        res.status(200).json({// Responder con 200 OK (la actualización se realizó)
             ok: true,
             message: `Tarea con id: ${id} editada con exito`,
             data: tareaActualizada
@@ -115,22 +123,6 @@ app.put("/api/todos/:id", async (req, res) => {
 })
 
 
-/*app.put("/api/todos/:id", (req, res) => {
-    const id = req.params.id; //obtenemmos el id del parametro
-    const tareaNueva = req.body;//los campos que mande el usuario
-    //buscamos la tarea
-    const tarea = todos.find((value) => value.id == id);
-
-    if (!tarea) {
-        return res.send("no existe el id");
-    } else {
-        Object.keys(tareaNueva).forEach((key) => {
-            tarea[key] = tareaNueva[key];
-        });
-        res.json(tarea);//imprimimos la tarea editada ya 
-    }
-
-})*/
 
 app.delete("/api/todos/:id", (req, res) => {
     const id = parseInt(req.params.id);//obtenemos valor del parametro y parseamos a entero

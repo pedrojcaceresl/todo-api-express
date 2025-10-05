@@ -64,19 +64,20 @@ app.post("/api/todos", async (req, res) => {
     const { titulo, descripcion, fechavencimiento, prioridad } = req.body;//aplicamos lo que seria la desestructuracion para obtener los campos del body y guardarlos en variables
     try {
         const nuevaTarea = await db.one
+         // Insertar la tarea en la base de datos y devolver el registro insertado
             (`INSERT INTO public.tareas(titulo, descripcion, fechavencimiento, prioridad) 
         VALUES ($1, $2, $3, $4) 
         RETURNING *`,
                 [titulo, descripcion, fechavencimiento, prioridad]);
-
-        res.status(202).json({
+                //201 created
+        res.status(201).json({
             ok: true,
             message: "Tarea creada con exito",
             data: nuevaTarea
         })
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(500).json({
             ok: false,
             message: "Error al crear la tarea"

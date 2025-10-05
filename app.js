@@ -64,12 +64,12 @@ app.post("/api/todos", async (req, res) => {
     const { titulo, descripcion, fechavencimiento, prioridad } = req.body;//aplicamos lo que seria la desestructuracion para obtener los campos del body y guardarlos en variables
     try {
         const nuevaTarea = await db.one
-         // Insertar la tarea en la base de datos y devolver el registro insertado
+            // Insertar la tarea en la base de datos y devolver el registro insertado
             (`INSERT INTO public.tareas(titulo, descripcion, fechavencimiento, prioridad) 
         VALUES ($1, $2, $3, $4) 
         RETURNING *`,
                 [titulo, descripcion, fechavencimiento, prioridad]);
-                //201 created
+        //201 created
         res.status(201).json({
             ok: true,
             message: "Tarea creada con exito",
@@ -85,8 +85,37 @@ app.post("/api/todos", async (req, res) => {
     }
 })
 
+app.put("/api/todos/:id", async (req, res) => {
+    const id = req.params.id;//obtenemos el valor del id del parametro
+    const { titulo, descripcion, fechavencimiento, prioridad } = req.body;//desestructuracion para obtener el dato que envia el cliente
+    try {
+        const tareaActualizada = await db.oneOrNone(`UPDATE tareas
+	SET titulo=$1, descripcion=$2, fechavencimiento=$3, prioridad=$4
+	WHERE id= $5 RETURNING *`, [titulo, descripcion, fechavencimiento, prioridad, id])
+    console.log(tareaActualizada);
+        if (!tareaActualizada) {
+            res.status(404).json({
+                ok: false,
+                message: `Error no existe la tarea con id: ${id}`
+            })
+        }
+        res.status(201).json({
+            ok: true,
+            message: `Tarea con id: ${id} editada con exito`,
+            data: tareaActualizada
+        })
 
-app.put("/api/todos/:id", (req, res) => {
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            message: `Error al editar la tarea con id ${id}`
+        });
+    }
+})
+
+
+/*app.put("/api/todos/:id", (req, res) => {
     const id = req.params.id; //obtenemmos el id del parametro
     const tareaNueva = req.body;//los campos que mande el usuario
     //buscamos la tarea
@@ -101,7 +130,7 @@ app.put("/api/todos/:id", (req, res) => {
         res.json(tarea);//imprimimos la tarea editada ya 
     }
 
-})
+})*/
 
 app.delete("/api/todos/:id", (req, res) => {
     const id = parseInt(req.params.id);//obtenemos valor del parametro y parseamos a entero

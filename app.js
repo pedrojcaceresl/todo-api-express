@@ -30,15 +30,16 @@ app.get("/api/todos", async (req, res) => {
     }
 
 })
+
 //funcion de listar por id
 app.get("/api/todos/:id", async (req, res) => {
     const id = req.params.id; //recibimos el id por parametros
     try {
         const tareas = await db.oneOrNone(" SELECT * FROM tareas WHERE id=$1", [id]);//consultamos a la bd la tarea que coincida con el id que recibimos por parametros
         if (!tareas) {//si no existe la tarea
-            return res.json({ //le ponemos return para que no siga ejecutandose el codigo
+            return res.status(404).json({ //le ponemos return para que no siga ejecutandose el codigo
                 ok: false,
-                message: "Tarea no encontrada"
+                message: `Tarea con ese id: ${id} no encontrada`
             });
         }
         res.json({
@@ -59,7 +60,7 @@ app.get("/api/todos/:id", async (req, res) => {
 
 
 //post: para crear
-app.post("/api/todos", (req, res) => {
+ app.post("/api/todos", (req, res) => {
     const body = req.body; // guardar en la variable body todo el contenido del cuerpo (body) de la petición HTTP que llega al servidor.
     const nuevaTarea = {
         id: todos.length + 1,

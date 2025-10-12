@@ -4,7 +4,7 @@ import db from "./src/db/db.js"
 import todoRoutes from "./src/routes/todoRoutes.js"
 import sequelize from "./src/config/database.js";
 import Todo from "./src/models/Todo.js";
-
+import User from "./src/models/User.js";
 const app = express();
 const PORT = 3000;
 

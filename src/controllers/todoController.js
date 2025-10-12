@@ -42,10 +42,10 @@ export const getTodosById = async (req, res) => {
     }
 }
 
-export const createTodos = async (req, res) =>{
-const { titulo, descripcion, fecha_vencimiento, prioridad, esta_hecho } = req.body;//aplicamos lo que seria la desestructuracion para obtener los campos del body y guardarlos en variables
+export const createTodos = async (req, res) => {
+    const { titulo, descripcion, fecha_vencimiento, prioridad, esta_hecho } = req.body;//aplicamos lo que seria la desestructuracion para obtener los campos del body y guardarlos en variables
     try {
-        const nuevaTarea = await Todo.create({ titulo, descripcion, fecha_vencimiento, prioridad, esta_hecho  });
+        const nuevaTarea = await Todo.create({ titulo, descripcion, fecha_vencimiento, prioridad, esta_hecho });
         //201 created
         res.status(201).json({
             ok: true,
@@ -62,7 +62,7 @@ const { titulo, descripcion, fecha_vencimiento, prioridad, esta_hecho } = req.bo
     }
 }
 
-export const updateTodos = async (req, res) =>{
+export const updateTodos = async (req, res) => {
     const id = parseInt(req.params.id);//obtenemos el valor del id del parametro
     const { titulo, descripcion, fecha_vencimiento, prioridad, esta_hecho } = req.body;//desestructuracion para obtener el dato que envia el cliente
     // Validación básica del id - > Number.isNaN() significa "is Not a Number" es decir, verifica si el valor no es un número
@@ -81,15 +81,12 @@ export const updateTodos = async (req, res) =>{
                 message: `Error no existe la tarea con id: ${id}`
             })
         }
-        const tareaAntigua = { ...tareaUpdate.dataValues } //hacemos una copia del objeto original antes de actualizarlo
         //actualizamos los campos, hacemos la validacion de que si es undefined no lo actualice
         if (titulo !== undefined) tareaUpdate.titulo = titulo;
         if (descripcion !== undefined) tareaUpdate.descripcion = descripcion;
-        if(fecha_vencimiento !== undefined) tareaUpdate.fecha_vencimiento = fecha_vencimiento;
+        if (fecha_vencimiento !== undefined) tareaUpdate.fecha_vencimiento = fecha_vencimiento;
         if (prioridad !== undefined) tareaUpdate.prioridad = prioridad;
         if (esta_hecho !== undefined) tareaUpdate.esta_hecho = esta_hecho;
-        console.log("Tarea antigua:", tareaAntigua);
-        console.log("Tarea actualizada:", tareaUpdate.dataValues);
 
         await tareaUpdate.save(); //guardamos los cambios
         res.status(200).json({// Responder con 200 OK (la actualización se realizó)
@@ -98,12 +95,43 @@ export const updateTodos = async (req, res) =>{
             data: tareaUpdate
         })
 
-
     } catch (error) {
         console.error(error);
         res.status(500).json({
             ok: false,
             message: `Error al editar la tarea con id ${id}`
         });
+    }
+}
+
+export const deleteTodos = async (req, res) => {
+    const id = parseInt(req.params.id);//obtenemos valor de la url, y parseamos a entero
+    //validacion de si el id es un numero
+    if (Number.isNaN(id)) {
+        return res.status(400).json({
+            ok: false,
+            message: "Id invalido"
+        })
+    }
+
+    try {
+        const tareaDelete = await Todo.findByPk(id);
+        if (!tareaDelete) {
+            return res.status(404).json({
+                ok: false,
+                message: `Error no existe la tarea con id: ${id}`
+            })
+        }
+        await tareaDelete.destroy();
+        res.status(200).json({
+            ok: true,
+            message: `Tarea con id: ${id} eliminada con exito`
+        })
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            message: `Error al intentar eliminar la tarea con id: ${id}`
+        })
     }
 }

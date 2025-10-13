@@ -1,18 +1,19 @@
+import 'dotenv/config'
 import express from "express";
-import todos from "./src/db/todos.js"
-import db from "./src/db/db.js"
-import todoRoutes from "./src/routes/todoRoutes.js"
 import sequelize from "./src/config/database.js";
-import Todo from "./src/models/Todo.js";
-import User from "./src/models/User.js";
+
+import todoRoutes from "./src/routes/todoRoutes.js"
+import userRoutes from "./src/routes/userRoutes.js"
+
+
+
 const app = express();
 const PORT = 3000;
 
 app.use(express.json()) //middleware Eso le dice a Express: “cuando venga un body en formato JSON, parsealo y guardalo en req.body”.
 
-//funcion
 app.use("/api/todos", todoRoutes);
-
+app.use("/api/auth", userRoutes);
 
 try {
     await sequelize.authenticate();

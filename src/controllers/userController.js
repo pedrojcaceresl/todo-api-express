@@ -1,7 +1,24 @@
+import dotenv from "dotenv";
+dotenv.config(); // carga variables de .env
+
+import bcrypt from "bcrypt";
+import saltRounds from "bcrypt";
 import User from "../models/User.js"
+import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 console.log("Este es: " + JWT_SECRET);
+
+
+//generar una sal asincrona
+
+bcrypt.genSalt(saltRounds, (err, salt)=>{
+    if(err){
+        console.error("Error al generar la sal: " + err);
+        return;
+    }
+    console.log("Sal generada: " + salt);
+})
 
 //Funcion registrar
 
@@ -17,6 +34,7 @@ export const registerUser = async (req, res) => {
             })
         }
 
+        
         // validacion para verificar si ya existe el email
         const userExist = await User.findOne({ where: { email } })
         if (userExist) {
@@ -26,12 +44,17 @@ export const registerUser = async (req, res) => {
             })
         }
 
+        //hashear la contraseña antes de guardarla
+        const saltRounds = 10; //numero de rondas de sal para el hash SIEMPRE ENTRE EL 10 Y 12
+        //constante que almacena la contraseña hasheada
+        const hashedPassword = await bcrypt.hash(contraseña, saltRounds);
+
+
         const newUser = await User.create({
             nombre,
             apellido,
             email,
-            contraseña
-
+            contraseña: hashedPassword //guardamos la contraseña hasheada, no la original
         });
 
         res.status(200).json({
@@ -50,3 +73,55 @@ export const registerUser = async (req, res) => {
     }
 
 }
+
+//funcion login
+
+export const userLogin = async (req, res) => {
+    const { email, contraseña } = req.body;
+    if (!email || !contraseña) {
+        return res.status(400).json({
+            ok: false,
+            message: "Error campos vacios"
+        })
+    }
+    try {
+
+        const user = await User.findOne({ where: {email} });
+        if (!user) {
+            return res.status(400).json({
+                ok: false,
+                message: "Error el usuario con ese email no esta registrado"
+            })
+        }
+        const validPassword = await bcrypt.compare(contraseña, user.contraseña);
+        if (!validPassword) {
+            return res.status(400).json({
+                ok: false,
+                message: "Error contraseña o usuario incorrectos"
+            })
+        }
+
+        //verificamos si existe la clave para firmar
+        if (!JWT_SECRET) {
+            return res.status(500).json({
+                ok: false,
+                message: "Error de configuracion del servidor"
+            })
+        }
+        //creacion de token para el usuario -> jwt.sign(payload, secretOrPrivateKey, [options])
+        const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET,  { expiresIn: "1h" });
+        res.status(200).json({
+            ok: true,
+            message: "Usuario logueado con exito",
+            token: token
+        })
+        
+
+    } catch (error) {
+        console.error("El error es : " + error);
+        res.status(500).json({
+            ok: false,
+            message: "Error en el servidor 500"
+        })
+    }
+} 

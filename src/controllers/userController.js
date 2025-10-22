@@ -93,7 +93,7 @@ export const userLogin = async (req, res) => {
         res.status(200).json({
             ok: true,
             message: "Usuario logueado con exito",
-            data: token
+            token: token
         })
         
 
